@@ -1,5 +1,6 @@
 package com.atguigu.ggkt.vod.controller;
 
+import com.atguigu.ggkt.exception.GgktException;
 import com.atguigu.ggkt.model.vod.Teacher;
 import com.atguigu.ggkt.result.Result;
 import com.atguigu.ggkt.vo.vod.TeacherQueryVo;
@@ -27,6 +28,7 @@ import java.util.List;
 @Api(tags = "讲师管理接口")
 @RestController
 @RequestMapping("/admin/vod/teacher")
+//@CrossOrigin (origins = "http://localhost:8301") //解决跨域问题
 public class TeacherController {
 
     @Autowired
@@ -34,9 +36,16 @@ public class TeacherController {
 
     //1.查询所有讲师
     @ApiOperation("查询所有讲师")
-    @GetMapping("/findAll")
+    @GetMapping("findAll")
     public Result findAllTeacher(){
         //调用service方法
+
+        try {
+            int a = 10/0;
+        } catch (Exception e) {
+            //抛出异常
+            throw new GgktException(201,"执行自定义异常处理GgktException");
+        }
         List<Teacher> list = teacherService.list();
         return Result.ok(list).message("查询数据成功");
     }
@@ -48,22 +57,21 @@ public class TeacherController {
 
         boolean isSuccess = teacherService.removeById(id);
         if (isSuccess){
-            return Result.ok(null);
+            return Result.ok(null).message("删除成功！");
         }else{
             return Result.fail(null);
         }
     }
 
 
-
     //3,条件查询分页
     @ApiOperation("条件查询分页")
-    @PostMapping("/findQueryPage/{current}/{limit}")
-    public Result findPage(@PathVariable Long current,
+    @PostMapping("/findQueryPage/{page}/{limit}")
+    public Result findPage(@PathVariable Long page,
              @PathVariable Long limit,
              @RequestBody(required = false) TeacherQueryVo teacherQueryVo){
         //创建page对象
-        Page<Teacher> pageParam = new Page<>(current, limit);
+        Page<Teacher> pageParam = new Page<>(page, limit);
         //判断teacherQueryVo 是否为空
         if(teacherQueryVo == null){
             IPage<Teacher> pageModel = teacherService.page(pageParam,null);
@@ -91,6 +99,7 @@ public class TeacherController {
             //调用方法分页查询
             IPage<Teacher> pageModel = teacherService.page(pageParam, wrapper);
             //返回
+            System.out.println(pageModel);
             return Result.ok(pageModel);
         }
     }
@@ -121,7 +130,7 @@ public class TeacherController {
         boolean isSuccess = teacherService.updateById(teacher);
 
         if (isSuccess){
-            return Result.ok(null);
+            return Result.ok(null).message("修改成功!");
         }else{
             return Result.fail(null);
         }
@@ -130,7 +139,7 @@ public class TeacherController {
     //7.批量删除讲师
     // [1,2,3]
     @ApiOperation("批量删除讲师")
-    @PostMapping("removeBatch")
+    @DeleteMapping("removeBatch")
     public Result removeBatch(@RequestBody List<Long> idList){
 
         boolean isSuccess = teacherService.removeByIds(idList);

@@ -11,7 +11,6 @@ public class VodConfig {
     /**
      *  分页插件
      */
-
     @Bean
     public PaginationInnerInterceptor paginationInnerInterceptor(){
         return new PaginationInnerInterceptor();
